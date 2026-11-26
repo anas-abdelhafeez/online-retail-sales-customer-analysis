@@ -1,0 +1,8 @@
+segment,customers,y1_revenue,y2_revenue,retained_pct,avg_y2_per_customer,avg_y2_per_returner,nrr_pct
+Champions,903,5550221.1,4601746.6,93.9,5096.1,5426.6,82.9
+Loyal,488,894781.0,596431.7,78.1,1222.2,1565.4,66.7
+At Risk (was loyal),323,719854.3,342921.5,67.8,1061.7,1565.9,47.6
+Hibernating,845,510584.7,355650.7,42.7,420.9,985.2,69.7
+Potential Loyalists,481,446819.9,409908.0,70.1,852.2,1216.3,91.7
+Lost / One-off,890,345768.7,249904.9,40.6,280.8,692.3,72.3
+New / Promising,355,171627.5,179354.6,52.7,505.2,959.1,104.5
