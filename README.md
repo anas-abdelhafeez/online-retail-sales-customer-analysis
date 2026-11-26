@@ -19,7 +19,7 @@ Revenue grew only 3.3% (Jan to Oct 2011 vs 2010). Is the business healthy, or re
 | Retention | Who stayed, and what did they spend? | Back-test by RFM segment; second order within 90 days is worth £3.8k vs £0.9k over 12 months |
 | Seasonality | When does demand peak, and can we forecast it? | Sep to Nov = 36% of revenue; seasonal-naive forecast back-tested at 9.3% average error |
 | Products | What sells, what is returned? | Variant pairs have 20 to 30x lift; return rates reach 36% on a few lines |
-| Fix | What is each lever worth? | Five levers sized in GBP with their assumptions |
+| Fix | What is each lever worth? | Five levers that add up (no double counting) to a revenue total, plus gross profit under an assumed margin range |
 
 ## Methods
 
@@ -28,11 +28,12 @@ Revenue grew only 3.3% (Jan to Oct 2011 vs 2010). Is the business healthy, or re
 - **Forecast:** seasonal naive (same month last year) with a growth trend from Jan to Oct 2011 vs 2010. Tested on Jan to Nov 2011 using 2010 only.
 - **Basket analysis:** pairs among the 250 most-ordered products with at least 200 shared orders, ranked by lift.
 - **Product risk:** return value as % of sales for products with at least £10k sales. Two products (23843, 23166) each had one huge order that was fully cancelled (£246k combined); they are excluded from product risk and ranked by net revenue.
-- **Fix sizing:** scenarios built from the back-test. Each states its assumption in the dashboard and in `data/summary.json`. They overlap and are not additive.
+- **Fix sizing:** scenarios built from the back-test. Each states its assumption in the dashboard and in `data/summary.json`. The three customer levers act on disjoint customers (new customers already in the Champions or lapsed groups are removed from the second-order lever) and Q4 stock-outs and returns use separate sales pools, so they sum to the total shown (about GBP 850k a year).
+- **Profit scenarios:** the dataset has no cost data, so profit is revenue times an assumed gross margin: 30.57% (Retail Distributors), 33.18% (Retail General), 35.30% (Retail Special Lines). Source: Aswath Damodaran, NYU Stern, Margins by Sector (US), data as of Jan 2026, https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html . Listed US companies, so use as a range. Gross profit before the cost of running each program.
 
 ## Limitations
 
-- Revenue, not profit: there is no cost or margin data.
+- Profit is an assumption: there is no cost or margin data, so the profit view uses a public benchmark range, not this company's margins.
 - One retailer, two years, no price or marketing data. The forecast cannot see promotions or a lost large account.
 - 13% of gross revenue has no Customer ID and is excluded from customer analysis.
 - RFM segments are rule-based, not a fitted model. The "second order" lever is a correlation, not proven cause.
