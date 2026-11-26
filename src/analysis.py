@@ -277,8 +277,15 @@ sizing.append(dict(key="champions", title="Keep Champions from lapsing",
     assumption="Cut Champion churn by 5 percentage points; each saved Champion spends the back-test average for a returning Champion (year-2 spend of returning Champions)",
     gbp=round(n_champ * 0.05 * float(ch.avg_y2_per_returner))))
 gap = clv_stats["avg_12m_reorderers"] - clv_stats["avg_12m_nonreorderers"]
+# De-duplication: levers 1-3 must act on disjoint customers. New customers who already sit in the
+# Champions or lapsed groups are removed from the second-order lever, so the three add up.
+new_ids = set(fo[(fo >= "2010-12-10") & (fo <= last)].index)
+taken = set(rfm.index[rfm["segment"].isin(["Champions", "At Risk (was loyal)", "Hibernating"])])
+new_overlap = len(new_ids & taken)
+new_per_year_raw = new_per_year
+new_per_year = len(new_ids - taken)
 sizing.append(dict(key="reorder", title="Win the second order within 90 days",
-    base=f"{new_per_year:,} new customers in the last 12 months; {clv_stats['reorder90_pct']}% reorder within 90 days",
+    base=f"{new_per_year:,} new customers in the last 12 months not already counted in the two levers above ({new_overlap:,} removed); {clv_stats['reorder90_pct']}% reorder within 90 days",
     assumption=f"Lift 90-day reorder rate by 5 points; each extra reorderer is worth the 12-month gap vs non-reorderers (GBP {gap:,}). This is a correlation: reorderers may simply be better customers",
     gbp=round(new_per_year * 0.05 * gap)))
 sizing.append(dict(key="q4", title="Avoid Q4 stock-outs",
@@ -289,6 +296,18 @@ sizing.append(dict(key="returns", title="Cut avoidable returns",
     base=f"Underlying returns GBP {(returned-mega_val)/1e3:,.0f}k after removing two fully cancelled mega-orders",
     assumption="Reduce returned value by 20%. Returned value is revenue, not margin; profit effect is unknown without cost data",
     gbp=round((returned - mega_val) * 0.20)))
+
+# Profit view: gross-margin scenarios. The dataset has NO cost data, so margin is an assumption.
+# Benchmarks: Damodaran (NYU Stern), Margins by Sector (US), data as of Jan 2026, gross margin:
+# Retail (Distributors) 30.57%, Retail (General) 33.18%, Retail (Special Lines) 35.30%.
+MARGINS = dict(low=0.3057, base=0.3318, high=0.3530)
+for s_ in sizing:
+    s_["profit"] = {k: round(s_["gbp"] * v) for k, v in MARGINS.items()}
+tot_gbp = sum(s_["gbp"] for s_ in sizing)
+sizing_total = dict(revenue=tot_gbp, profit={k: round(tot_gbp * v) for k, v in MARGINS.items()}, margins=MARGINS,
+    new_overlap_removed=new_overlap, new_raw=new_per_year_raw, new_used=new_per_year,
+    source="NYU Stern, Aswath Damodaran, Margins by Sector (US), Jan 2026: https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html",
+    benchmarks=[["Retail (Distributors)", 30.57], ["Retail (General)", 33.18], ["Retail (Special Lines)", 35.30]])
 
 summary = dict(
     log=log, kpi=kpi,
@@ -304,7 +323,7 @@ summary = dict(
     cohort=dict(x=list(range(ret.shape[1])), y=list(ret.index), v=[[int(j), i, (None if i + j >= len(ret) else float(ret.iloc[i, j]))] for i in range(len(ret)) for j in range(ret.shape[1])], sizes=cohort_sizes),
     avg_retention=avg_ret,
     order_buckets=ob.values.tolist(),
-    backtest=backtest, clv=clv_stats, forecast=forecast, basket_pairs=basket_pairs, basket_stats=basket_stats, returns=returns, conc=conc, sizing=sizing,
+    backtest=backtest, clv=clv_stats, forecast=forecast, basket_pairs=basket_pairs, basket_stats=basket_stats, returns=returns, conc=conc, sizing=sizing, sizing_total=sizing_total,
     items_per_order_median=float(inv["lines"].median()),
 )
 json.dump(summary, open(f"{OUT}/summary.json", "w"), default=lambda o: o.item() if hasattr(o, "item") else str(o))
