@@ -1,0 +1,8 @@
+segment,customers,revenue,avg_recency_days,avg_orders,avg_value,revenue_share_pct
+Champions,1280,11602817.1,19.1,17.1,9064.7,68.0
+Loyal,701,1837562.4,82.4,7.7,2621.3,10.8
+At Risk (was loyal),360,1038132.1,341.7,7.6,2883.7,6.1
+Hibernating,1172,899537.1,417.7,2.1,767.5,5.3
+Potential Loyalists,700,793506.7,57.9,3.1,1133.6,4.6
+Lost / One-off,1192,485361.6,353.4,1.1,407.2,2.8
+New / Promising,447,411665.7,27.4,1.5,921.0,2.4
